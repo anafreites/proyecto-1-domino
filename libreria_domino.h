@@ -5,10 +5,15 @@ struct Piedra{
     bool fueUsada;
 };
 
-//estructura de datos para los jugadores
+//estructura de datos para los jugadores (lista ciclica)
 struct Jugador{
     int num_piedras;
     Piedra* mano;
     Jugador* sigJugador;
-    Jugador* antJugador;
+};
+
+//estructura de datos para el pozo (boneyard)
+struct Pozo{
+    Piedra* piedras;
+    int num_piedras;
 };
