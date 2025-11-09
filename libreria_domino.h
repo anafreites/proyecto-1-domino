@@ -46,3 +46,24 @@ struct NodoMesa {
     NodoMesa* sigFicha; 
     NodoMesa* antFicha; 
 };
+
+//punteros para la mesa
+NodoMesa* inicioMesa = nullptr;
+NodoMesa* finMesa = nullptr;
+
+//funciones auxiliares
+//intercambio de fichas
+void swapPiedra(Piedra* a, Piedra* b) {
+    Piedra temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+//mostrar ficha
+void mostrarPiedra(Piedra p) {
+    if (p.valor1 == -1) {
+        cout << "(VACIO)";
+    } else {
+        cout << "[" << p.valor1 << "|" << p.valor2 << "]";
+    }
+}
