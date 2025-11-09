@@ -111,3 +111,45 @@ void llenarPozo(Pozo* boneyard) {
         insertarEnPozo(boneyard, todasLasFichas[i]);
     }
 }
+
+//funciones de la mesa
+void inicializarMesa(NodoMesa** inicioMesaPtr, NodoMesa** finMesaPtr) {
+    *inicioMesaPtr = nullptr;
+    *finMesaPtr = nullptr;
+}
+
+void colocarPrimeraPiedra(NodoMesa** inicioMesaPtr, NodoMesa** finMesaPtr, Piedra piece) {
+    NodoMesa* nuevoNodo = new NodoMesa;
+    nuevoNodo->piece = piece;
+    nuevoNodo->sigFicha = nullptr;
+    nuevoNodo->antFicha = nullptr;
+    *inicioMesaPtr = nuevoNodo;
+    *finMesaPtr = nuevoNodo;
+}
+
+void colocarPiedraEnMesa(NodoMesa** inicioMesaPtr, NodoMesa** finMesaPtr, Piedra piece, bool alFinal, int valorConectado) {
+    if (*inicioMesaPtr == nullptr) {
+        colocarPrimeraPiedra(inicioMesaPtr, finMesaPtr, piece);
+        return;
+    }
+    NodoMesa* nuevoNodo = new NodoMesa;
+    nuevoNodo->piece = piece;
+    nuevoNodo->sigFicha = nullptr;
+    nuevoNodo->antFicha = nullptr;
+
+    if (alFinal) {
+        if (nuevoNodo->piece.valor1 != valorConectado) {
+            swapPiedra(&nuevoNodo->piece, &nuevoNodo->piece);
+        }
+        (*finMesaPtr)->sigFicha = nuevoNodo;
+        nuevoNodo->antFicha = *finMesaPtr;
+        *finMesaPtr = nuevoNodo;
+    } else { 
+        if (nuevoNodo->piece.valor2 != valorConectado) {
+            swapPiedra(&nuevoNodo->piece, &nuevoNodo->piece);
+        }
+        (*inicioMesaPtr)->antFicha = nuevoNodo;
+        nuevoNodo->sigFicha = *inicioMesaPtr;
+        *inicioMesaPtr = nuevoNodo;
+    }
+}
