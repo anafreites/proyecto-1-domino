@@ -153,3 +153,34 @@ void colocarPiedraEnMesa(NodoMesa** inicioMesaPtr, NodoMesa** finMesaPtr, Piedra
         *inicioMesaPtr = nuevoNodo;
     }
 }
+
+//funciones de los jugadores
+Jugador* inicializarJugadores(int num_jugadores) {
+    if (num_jugadores < 2 || num_jugadores > 4) return nullptr;
+    Jugador* primerJugador = nullptr;
+    Jugador* ultimoJugador = nullptr;
+    for (int i = 1; i <= num_jugadores; ++i) {
+        Jugador* nuevoJugador = new Jugador;
+        nuevoJugador->id = i;
+        nuevoJugador->puntosAcumulados = 0;
+        nuevoJugador->mano = nullptr;
+        nuevoJugador->num_piedras = 0;
+        
+        if (primerJugador == nullptr) {
+            primerJugador = nuevoJugador;
+        } else {
+            ultimoJugador->sigJugador = nuevoJugador;
+        }
+        ultimoJugador = nuevoJugador;
+    }
+    if (ultimoJugador != nullptr) {
+        ultimoJugador->sigJugador = primerJugador; // Cerrar el ciclo
+    }
+    return primerJugador;
+}
+
+void pasarTurno(Jugador** currentPlayer) {
+    if (*currentPlayer != nullptr) {
+        *currentPlayer = (*currentPlayer)->sigJugador;
+    }
+}
