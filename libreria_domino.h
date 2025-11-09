@@ -244,3 +244,94 @@ void repartirPiedras(Jugador* primerJugador, int num_jugadores, Pozo* boneyard) 
     cout << "  > Reparto completado. Cada jugador tiene 7 fichas." << endl;
     cout << "  > El pozo tiene " << boneyard->num_piedras << " fichas restantes." << endl;
 }
+
+//logica del juego
+int jugadaValida(NodoMesa* inicioMesaPtr, NodoMesa* finMesaPtr, Piedra piece) {
+    if (inicioMesaPtr == nullptr) return 1;
+
+    int valor_extremo1 = inicioMesaPtr->piece.valor1;
+    int valor_extremo2 = finMesaPtr->piece.valor2;
+    
+    int validez = 0;
+    if (piece.valor1 == valor_extremo1 || piece.valor2 == valor_extremo1) {
+        validez = 1;
+    }
+    if (piece.valor1 == valor_extremo2 || piece.valor2 == valor_extremo2) {
+        if (validez == 1) validez = 3;
+        else validez = 2; 
+    }
+    return validez;
+}
+
+bool puedeJugar(Jugador* player, NodoMesa* inicioMesaPtr, NodoMesa* finMesaPtr) {
+    NodoPiedra* actual = player->mano;
+    while (actual != nullptr) {
+        if (jugadaValida(inicioMesaPtr, finMesaPtr, actual->ficha) != 0) {
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
+Jugador* buscarPiedraMasAlta(Jugador* primerJugador, int num_jugadores, Piedra* fichaInicial) {
+    Jugador* actual = primerJugador;
+    Jugador* jugadorQueInicia = nullptr;
+    Piedra maxPiedra = {-1, -1, false};
+
+    for (int i = 0; i < num_jugadores; ++i) {
+        NodoPiedra* nodoActual = actual->mano;
+        while (nodoActual != nullptr) {
+            Piedra ficha = nodoActual->ficha;
+            int valorTotal = ficha.valor1 + ficha.valor2;
+            bool esDoble = (ficha.valor1 == ficha.valor2);
+            int maxValorTotal = maxPiedra.valor1 + maxPiedra.valor2;
+            bool esMaxDoble = (maxPiedra.valor1 == maxPiedra.valor2);
+
+            if (ficha.valor1 == 6 && ficha.valor2 == 6) {
+                *fichaInicial = ficha;
+                return actual;
+            }
+
+            if (esDoble && (!esMaxDoble || valorTotal > maxValorTotal)) {
+                maxPiedra = ficha;
+                jugadorQueInicia = actual;
+            } else if (!esDoble && !esMaxDoble && valorTotal > maxValorTotal) {
+                maxPiedra = ficha;
+                jugadorQueInicia = actual;
+            }
+            nodoActual = nodoActual->siguiente;
+        }
+        actual = actual->sigJugador;
+    }
+
+    if (jugadorQueInicia != nullptr) {
+        *fichaInicial = maxPiedra;
+        return jugadorQueInicia;
+    }
+    return nullptr;
+}
+
+int contarPuntosEnMano(Jugador* player) {
+    int puntos = 0;
+    NodoPiedra* actual = player->mano;
+    while (actual != nullptr) {
+        puntos += actual->ficha.valor1 + actual->ficha.valor2;
+        actual = actual->siguiente;
+    }
+    return puntos;
+}
+
+bool rondaTerminada(Jugador* primerJugador, int num_jugadores, Pozo* boneyard, int& turnosSinJugar) {
+    Jugador* actual = primerJugador;
+    for (int i = 0; i < num_jugadores; ++i) {
+        if (actual->num_piedras == 0) {
+            return true; 
+        }
+        actual = actual->sigJugador;
+    }
+    if (boneyard->num_piedras == 0 && turnosSinJugar >= num_jugadores) {
+        return true;
+    }
+    return false;
+}
