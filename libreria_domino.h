@@ -184,3 +184,63 @@ void pasarTurno(Jugador** currentPlayer) {
         *currentPlayer = (*currentPlayer)->sigJugador;
     }
 }
+
+//funciones relacionadas con la logica de las manos de los jugadores
+void agregarPiedraAMano(Jugador* player, Piedra piece) {
+    NodoPiedra* nuevoNodo = new NodoPiedra;
+    nuevoNodo->ficha = piece;
+    nuevoNodo->siguiente = player->mano;
+    player->mano = nuevoNodo;
+    player->num_piedras++;
+}
+
+Piedra jugarPiedra(Jugador* player, Piedra piece) {
+    NodoPiedra* actual = player->mano;
+    NodoPiedra* anterior = nullptr;
+    while (actual != nullptr) {
+        if ((actual->ficha.valor1 == piece.valor1 && actual->ficha.valor2 == piece.valor2) || 
+            (actual->ficha.valor1 == piece.valor2 && actual->ficha.valor2 == piece.valor1)) {
+            
+            Piedra fichaJugada = actual->ficha;
+            
+            if (anterior == nullptr) {
+                player->mano = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+            
+            delete actual;
+            player->num_piedras--;
+            return fichaJugada;
+        }
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+    return {-1, -1, false};
+}
+
+void agarrarPiedraDelPozo(Pozo* boneyard, Jugador* player) {
+    if (boneyard->num_piedras > 0) {
+        Piedra fichaTomada = sacarPiedraDelPozo(boneyard);
+        if (fichaTomada.valor1 != -1) {
+             agregarPiedraAMano(player, fichaTomada);
+             cout << "  > Jugador " << player->id << " toma la ficha y tiene " << player->num_piedras << " fichas." << endl;
+        }
+    }
+}
+
+void repartirPiedras(Jugador* primerJugador, int num_jugadores, Pozo* boneyard) {
+    llenarPozo(boneyard);
+    Jugador* actual = primerJugador;
+    for (int ronda = 0; ronda < 7; ++ronda) { 
+        for (int i = 0; i < num_jugadores; ++i) {
+            if (boneyard->num_piedras > 0) {
+                Piedra ficha = sacarPiedraDelPozo(boneyard);
+                agregarPiedraAMano(actual, ficha);
+            }
+            actual = actual->sigJugador;
+        }
+    }
+    cout << "  > Reparto completado. Cada jugador tiene 7 fichas." << endl;
+    cout << "  > El pozo tiene " << boneyard->num_piedras << " fichas restantes." << endl;
+}
